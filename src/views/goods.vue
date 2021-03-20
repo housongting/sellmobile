@@ -1,6 +1,5 @@
 <template>
-  <div class="goods">
-
+  <div class="goods h-100" style="overflow:auto">
     <div class="goodsHeader" style="border-bottom:1px solid #ccc">
       <div class="d-flex pt-3 pb-3" style="border-bottom:1px solid #ccc">
         <div class="goodsHeader-left flex-grow-1">

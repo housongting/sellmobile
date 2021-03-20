@@ -14,6 +14,10 @@ export function ratings() {
   return instance.get('/api/ratings')
 }
 //商品接口
-export function goods() {
-  return instance.get('/api/goods')
+export function goods(seller) {
+  return instance.get('/api/goods', {
+    params: {
+      seller,
+    }
+  })
 }
