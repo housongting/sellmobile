@@ -26,13 +26,12 @@
       <span :class="titleFlag == 3 ? 'selected' :''" @click="btn(3)">商家</span>
     </div>
     <!-- 内容容器 -->
-    <div class="businessGoods" style="height:calc(100% - 210px);overflow:hidden">
-      <router-view> </router-view>
-    </div>
+     
+    <router-view> </router-view>
 
-    <div class="bottomBar d-flex" @click="isshow=!isshow">
+    <div class="bottomBar d-flex" v-on:click="show = !show">
       <div class="flex-grow-1 psPrice align-items-center d-flex justify-content-end">
-        <strong class="mr-3">￥0</strong>
+        <strong class="mr-3">￥{{getallPrice}}</strong>
         <span class="mr-3">|</span>
         <span class="mr-4">另需配送费￥4元</span>
       </div>
@@ -42,23 +41,24 @@
       </div>
     </div>
     <!-- 弹出来的购物车 -->
-    <div class="shopIsshow" v-show="isshow">
-      <div class="d-flex align-items-cenetr text-center">
-        <p style="width:30%">商品</p>
-        <p style="width:25%">单价</p>
-        <p style="width:25%">数量</p>
-        <p style="width:20%">总价</p>
+    <transition name="slide-fade">
+      <div class="shopIsshow" v-if="show">
+        <div class="d-flex align-items-cenetr text-center">
+          <p style="width:30%">商品</p>
+          <p style="width:25%">单价</p>
+          <p style="width:25%">数量</p>
+          <p style="width:20%">总价</p>
+        </div>
+        <div class="shopcount">
+          <div class="d-flex align-items-cenetr text-center" v-for="item in this.$store.getters.getshopMsg" :key="item.medilsName">
+            <p style="width:30%">{{item.medilsName}}</p>
+            <p style="width:25%">{{item.price}}
+              <p style="width:25%">{{item.number}}</p>
+              <p style="width:20%">{{item.price*item.number}}</p>
+          </div>
+        </div>
       </div>
-      <div class="shopcount">
-        <!-- <div class="d-flex align-items-cenetr text-center">
-          <p style="width:30%">25</p>
-          <p style="width:25%">sdfsd</p>
-          <p style="width:25%">sdfsdrtyrtyrtyf</p>
-          <p style="width:20%">sdfsdf</p>
-        </div> -->
-      </div>
-    </div>
-
+    </transition>
   </div>
 </template>  
 
@@ -66,36 +66,39 @@
 import { storeList } from "../api/api.js";
 export default {
   name: "home",
-  data () {
+  data() {
     return {
+      show: false,
       isshow: false,
       titleFlag: 1,
       avatar: "",
       name: "",
       bulletin: "",
-      description: '',
-      deliveryTime: '',
-      deliveryPrice: "",
+      description: "",
+      deliveryTime: "",
+      deliveryPrice: ""
     };
   },
-  created () {
-    storeList().then((res) => {
-      var storeDate = res.data.data
-      this.avatar = storeDate.avatar;
-      this.name = storeDate.name;
-      this.bulletin = storeDate.bulletin;
-      this.description = storeDate.description;
-      this.deliveryTime = storeDate.deliveryTime;
-      this.deliveryPrice = storeDate.deliveryPrice;
-      sessionStorage.setItem('id', storeDate.id)
-      //console.log(storeDate);
-    }).catch(function (error) {
-      console.log("Error", error.message);
-    });
+  created() {
+    storeList()
+      .then(res => {
+        var storeDate = res.data.data;
+        this.avatar = storeDate.avatar;
+        this.name = storeDate.name;
+        this.bulletin = storeDate.bulletin;
+        this.description = storeDate.description;
+        this.deliveryTime = storeDate.deliveryTime;
+        this.deliveryPrice = storeDate.deliveryPrice;
+        sessionStorage.setItem("id", storeDate.id);
+        //console.log(storeDate);
+      })
+      .catch(function(error) {
+        console.log("Error", error.message);
+      });
   },
   components: {},
   methods: {
-    btn (val) {
+    btn(val) {
       this.titleFlag = val;
       switch (this.titleFlag) {
         case 1:
@@ -110,10 +113,31 @@ export default {
       }
     }
   },
+  computed: {
+    getallPrice() {
+      var allprice = this.$store.getters.getshopMsg;
+      var price = 0;
+      for (const iterator of allprice) {
+        price += iterator.price * iterator.number;
+      }
+      return price;
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active for below version 2.1.8 */ {
+  transform: translateY(400px);
+  opacity: 0;
+}
 .allPrice {
   width: 100%;
   position: absolute;

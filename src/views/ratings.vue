@@ -84,7 +84,7 @@ export default {
   },
   created () {
     ratings().then((res) => {
-      console.log(res);
+      // console.log(res);
       this.messageArr = res.data.data;
     }).catch((error) => {
       console.log("ERROR", error.message);

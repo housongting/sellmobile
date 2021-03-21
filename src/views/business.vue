@@ -1,143 +1,106 @@
 <template>
-  <div class="d-flex h-100">
+  <div class="d-flex" style="height:calc(100% - 400px);overflow:hidden">
     <!-- 菜单标题 -->
-    <div class="detilsTitle">
-      <div v-for="(item,index) in goodsMenu" :key="index" :class="['detilsGroup',index == goodsMenuNum ? 'menuselected':'']" @click="clickJump(index)">
-        <span class="mr-1">{{item.icon}}</span>{{item.name}}
-      </div>
+    <div class="detilsTitle" ref="detilsTitleds">
+      <ul class="content">
+        <div v-for="(item,index) in goodsMedils" :key="index" class="detilsGroup">
+          <span class="mr-1">{{item.name}}</span>
+        </div>
+      </ul>
     </div>
-    <!-- 菜单详情 -->
-    <div class="detilsContent flex-grow-1">
-      <div v-for="(item,index) in goodsMenu" :key="index">
-        <div class="deiltsFir">{{item.name}}</div>
-        <div class="deiltsTwo">
-          <div class="d-flex" v-for="(v,i) in item.foods" :key="i" style="position:relative;padding:15px 0;border-bottom:1px solid rgb(243, 246, 246)">
-            <img :src="v.image" alt="" class="mr-2">
-            <div class="deiltsTwoGroup">
-              <p style="color:#000000">{{v.name}}</p>
-              <p style="font-size:12px;color:rgb(79, 82, 82)">{{v.description}}</p>
-              <p style="font-size:12px;color:rgb(79, 82, 82)">
-                <span class="mr-2">月售{{v.sellCount}}份</span>
-                <span>好评率{{v.rating}}%</span>
-              </p>
-              <p>
-                <strong class="mr-2" style="color:red">{{v.price}}</strong>
-                <small>
-                  <del style="font-size:12px">{{v.oldPrice}}</del>
-                </small>
-              </p>
-            </div>
-            <div class="addBtn">
-              <button class="mr-2 countBtn" @click="count(v,-1)" v-show="v.num>0">-</button>
-              {{v.num}}
-              <button class="ml-2 countBtn" @click="count(v,1)">+</button>
+    <div class="wrapper flex-grow-1" ref="wrapper">
+      <ul class="content">
+        <div v-for="item in goodsMedils" :key="item.name" class="mb-3">
+          <div class="deiltsFir">{{item.name}}</div>
+          <div class="deiltsTwo">
+            <div class="d-flex" v-for="(v,i) in item.foods" :key="i" style="padding:15px 0;border-bottom:1px solid rgb(243, 246, 246)">
+              <img :src="v.image" alt="" class="mr-2">
+              <div class="deiltsTwoGroup">
+                <p style="color:#000000">{{v.name}}</p>
+                <p style="font-size:12px;color:rgb(79, 82, 82)">
+                  <span>{{v.rating}}%</span>
+                </p>
+                <p>
+                  <strong class="mr-2" style="color:red">{{v.price}}</strong>
+                  <small>
+                    <del style="font-size:12px">{{v.oldPrice}}</del>
+                  </small>
+                </p>
+              </div>
+              <div class="addBtn">
+                <span class="mr-2" v-show="v.number>0">-</span>
+                {{v.number}}
+                <span class="ml-2">+</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </ul>
     </div>
 
   </div>
 </template>
 
 <script>
-import { goods } from "../api/api.js"
-// import BetterScroll from 'better-scroll'
+import { goods } from "../api/api.js";
+import BScroll from "better-scroll";
+
 export default {
   name: "business",
-  data () {
+  data() {
     return {
-      countNum: 38,
-      goodsMenu: this.$store.state.goodsMenu,
-      goodsMenuNum: 0,
-      heightArr: [
-        { key: 0, height: 0 },
-        { key: 1, height: 974 },
-        { key: 2, height: 1136 },
-        { key: 3, height: 1254 },
-        { key: 4, height: 1551 },
-        { key: 5, height: 1753 },
-        { key: 6, height: 1979 },
-        { key: 7, height: 2278 },
-        { key: 8, height: 2753 },
-      ]
+      arr: ["1", "2", "3", "4", 5, 6, 7, 8, 9],
+      num: 0,
+      goodsMedils: []
     };
   },
-  mounted () {
-    var that = this;
-
-    var detilsContent = document.getElementsByClassName('detilsContent')[0];
-    detilsContent.onscroll = function () {
-      var scrollHeight = detilsContent.scrollTop
-      if (scrollHeight >= 0 && scrollHeight <= 925) {
-        that.goodsMenuNum = 0;
-      } else if (scrollHeight > 925 && scrollHeight <= 1054) {
-        that.goodsMenuNum = 1;
-      } else if (scrollHeight > 1054 && scrollHeight <= 1185) {
-        that.goodsMenuNum = 2;
-      } else if (scrollHeight > 1185 && scrollHeight <= 1462) {
-        that.goodsMenuNum = 3;
-      } else if (scrollHeight > 1462 && scrollHeight <= 1636) {
-        that.goodsMenuNum = 4;
-      } else if (scrollHeight > 1636 && scrollHeight <= 1885) {
-        that.goodsMenuNum = 5;
-      } else if (scrollHeight > 1885 && scrollHeight <= 2210) {
-        that.goodsMenuNum = 6;
-      } else if (scrollHeight > 2210 && scrollHeight <= 2680) {
-        that.goodsMenuNum = 7;
-      } else {
-        that.goodsMenuNum = 8;
-      }
-    }
-
+  created() {
+    // this.$store.commit("setgoodsMenu", this.goodsMedils);
+    goods(156220)
+      .then(res => {
+        //左侧菜单
+        this.goodsMedils = res.data.data;
+        console.log(res.data.data);
+      })
+      .catch(error => {
+        console.log("ERROR", error.msg);
+      });
   },
-  created () {
-    var id = sessionStorage.getItem("id")
-    goods(id).then((res) => {
-      var newArr = res.data.data;
-      this.$store.commit('setgoodsMenu', newArr)
-    }).catch((error) => {
-      console.log("Error", error.message);
-    })
+  mounted() {
+    // new BScroll(document.querySelector(".detilsContent"));
+    this.scroll2 = new BScroll(this.$refs.wrapper, {
+      probeType: 3
+    });
+    this.scroll = new BScroll(this.$refs.detilsTitleds, {
+      probeType: 3
+    });
   },
-  methods: {
-    count (curNum, val) {
-      curNum.num += val;
-    },
-    clickJump (val) {
-      this.goodsMenuNum = val;
-      this.scrollHeight(val)
-    },
-    scrollHeight (val) {
-      var detilsContent = document.getElementsByClassName('detilsContent')[0];
-      detilsContent.scrollTop = this.heightArr[val].height;
+  methods: {},
+  watch: {
+    goodsMedils() {
+      this.$nextTick(() => {
+        this.scroll.refresh();
+        this.scroll2.refresh();
+      });
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.countBtn {
-  padding: 0px 7px;
-  border: 0;
-  outline: 0;
-}
-.menuselected {
-  background: #72adf4;
-  color: #fff;
-}
 .detilsTitle {
-  width: 100px;
+  width: 80px;
   background: rgb(243, 246, 246);
   padding: 0 8px;
+  // height: 240px;
+  // overflow: hidden;
   .detilsGroup {
     padding: 8px 0;
     border-bottom: 1px solid #ccc;
     font-size: 12px;
   }
 }
-.detilsContent {
-  overflow: scroll;
+.wrapper {
   .deiltsFir {
     height: 24px;
     line-height: 24px;
@@ -151,6 +114,7 @@ export default {
     padding: 0 15px;
     img {
       height: 60px;
+      // flex: 1;
       width: 60px;
       border: 1px solid #ccc;
     }

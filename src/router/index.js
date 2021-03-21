@@ -8,7 +8,7 @@ const routes = [{
     path: '/',
     name: 'home',
     component: Home,
-    redirect: "business",
+    // redirect: "business",
     children: [{
         path: 'business',
         name: 'business',
@@ -23,6 +23,11 @@ const routes = [{
         path: 'ratings',
         name: 'ratings',
         component: () => import('../views/ratings.vue')
+      },
+      {
+        path: 'test',
+        name: 'test',
+        component: () => import('../views/test.vue')
       },
     ]
   },
