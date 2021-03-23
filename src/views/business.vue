@@ -3,14 +3,14 @@
     <!-- 菜单标题 -->
     <div class="detilsTitle" ref="detilsTitleds">
       <ul class="content">
-        <div v-for="(item,index) in goodsMedils" :key="index" class="detilsGroup">
+        <div v-for="(item,index) in goodsMedils" :key="index" :class="['detilsGroup',flag == index ? 'selected' : '']" @click="selectBtnleft(index)">
           <span class="mr-1">{{item.name}}</span>
         </div>
       </ul>
     </div>
     <div class="wrapper flex-grow-1" ref="wrapper">
       <ul class="content">
-        <div v-for="item in goodsMedils" :key="item.name" class="mb-3">
+        <div v-for="(item,index) in goodsMedils" :key="item.name" class="mb-3" :id="index">
           <div class="deiltsFir">{{item.name}}</div>
           <div class="deiltsTwo">
             <div class="d-flex" v-for="(v,i) in item.foods" :key="i" style="padding:15px 0;border-bottom:1px solid rgb(243, 246, 246)">
@@ -47,41 +47,56 @@ import BScroll from "better-scroll";
 
 export default {
   name: "business",
-  data() {
+  data () {
     return {
-      arr: ["1", "2", "3", "4", 5, 6, 7, 8, 9],
       num: 0,
-      goodsMedils: []
+      goodsMedils: [],
+      flag: 0
     };
   },
-  created() {
+  created () {
     // this.$store.commit("setgoodsMenu", this.goodsMedils);
-    goods(156220)
-      .then(res => {
-        //左侧菜单
-        this.goodsMedils = res.data.data;
-        console.log(res.data.data);
-      })
-      .catch(error => {
-        console.log("ERROR", error.msg);
-      });
+    goods().then(res => {
+      //左侧菜单
+      this.goodsMedils = res.data.data;
+      // console.log(res.data.data);
+    }).catch(error => {
+      console.log("ERROR", error.msg);
+    });
+
   },
-  mounted() {
+  mounted () {
+    var that = this;
     // new BScroll(document.querySelector(".detilsContent"));
-    this.scroll2 = new BScroll(this.$refs.wrapper, {
+    that.scroll2 = new BScroll(that.$refs.wrapper, {
       probeType: 3
     });
-    this.scroll = new BScroll(this.$refs.detilsTitleds, {
-      probeType: 3
+    that.scroll = new BScroll(that.$refs.detilsTitleds, {
+      click: true,
     });
+    this.scroll2.on("scroll", ({ y }) => {
+      var distance = Math.abs(y)
+      console.log(distance);
+    })
   },
-  methods: {},
+  methods: {
+    selectBtnleft (val) {
+      // console.log(val)
+      this.flag = val;
+      this.scroll2.scrollToElement(document.getElementById(val), 500)
+    },
+  },
   watch: {
-    goodsMedils() {
+    goodsMedils () {
       this.$nextTick(() => {
-        this.scroll.refresh();
-        this.scroll2.refresh();
-      });
+        this.scroll.refresh()
+        this.scroll2.refresh()
+      })
+    }
+  },
+  computed: {
+    comresult () {
+      return this.goodsMedils.length
     }
   }
 };
@@ -92,12 +107,13 @@ export default {
   width: 80px;
   background: rgb(243, 246, 246);
   padding: 0 8px;
-  // height: 240px;
-  // overflow: hidden;
   .detilsGroup {
     padding: 8px 0;
     border-bottom: 1px solid #ccc;
     font-size: 12px;
+    &.selected {
+      color: rgb(34, 166, 242);
+    }
   }
 }
 .wrapper {
