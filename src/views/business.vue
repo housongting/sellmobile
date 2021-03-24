@@ -47,56 +47,71 @@ import BScroll from "better-scroll";
 
 export default {
   name: "business",
-  data () {
+  data() {
     return {
       num: 0,
       goodsMedils: [],
       flag: 0
     };
   },
-  created () {
+  created() {
     // this.$store.commit("setgoodsMenu", this.goodsMedils);
-    goods().then(res => {
-      //左侧菜单
-      this.goodsMedils = res.data.data;
-      // console.log(res.data.data);
-    }).catch(error => {
-      console.log("ERROR", error.msg);
-    });
-
+    goods()
+      .then(res => {
+        //左侧菜单
+        this.goodsMedils = res.data.data;
+        // console.log(res.data.data);
+      })
+      .catch(error => {
+        console.log("ERROR", error.msg);
+      });
   },
-  mounted () {
+  mounted() {
     var that = this;
     // new BScroll(document.querySelector(".detilsContent"));
     that.scroll2 = new BScroll(that.$refs.wrapper, {
       probeType: 3
     });
     that.scroll = new BScroll(that.$refs.detilsTitleds, {
-      click: true,
+      click: true
     });
     this.scroll2.on("scroll", ({ y }) => {
-      var distance = Math.abs(y)
-      console.log(distance);
-    })
+      var distance = Math.abs(y);
+      this.comresult.forEach((v, i) => {
+        if (distance >= v.min && distance < v.max) {
+          this.flag = i;
+          return;
+        }
+      });
+    });
   },
   methods: {
-    selectBtnleft (val) {
-      // console.log(val)
+    selectBtnleft(val) {
       this.flag = val;
-      this.scroll2.scrollToElement(document.getElementById(val), 500)
-    },
-  },
-  watch: {
-    goodsMedils () {
-      this.$nextTick(() => {
-        this.scroll.refresh()
-        this.scroll2.refresh()
-      })
+      this.scroll2.scrollToElement(document.getElementById(val), 500);
     }
   },
   computed: {
-    comresult () {
-      return this.goodsMedils.length
+    comresult() {
+      var arr = [],
+        chushi = 0;
+      this.goodsMedils.forEach((v, i) => {
+        var eleheught = document.getElementById(i).offsetHeight;
+        arr.push({ min: chushi, max: eleheught + chushi, index: i });
+        chushi += eleheught;
+      });
+      return arr;
+      // var arrObject = [
+      //   { min:  this.goodsMedils.0, max: 830, index: 0 },
+      //   { min: 830, max: 1034, index: 1},
+      //   { min: 1034, max: 1176, index: 2 },
+      //   { min: 1176, max: 1476, index: 3 },
+      //   { min: 1476, max: 1697, index: 4},
+      //   { min: 1697, max: 1926, index: 5 },
+      //   { min: 1926, max: 2245, index: 6},
+      //    { min: 2245, max: 2733, index: 7 }
+      //    { min: 2733, max: 2900, index: 8 }
+      // ];
     }
   }
 };
